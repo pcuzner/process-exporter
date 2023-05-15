@@ -77,16 +77,22 @@ ceph_process_written_bytes_total{daemon="osd.41",pid="2456066",pname="ceph-osd"}
 ## Building the container
 Install podman and buildah on your machine and then run the ```buildah/build-exporter.sh``` script.
 
-If you're not interested in the code, and just want to deploy it to kick the types, you can grab the latest container from docker hub.
+If you're not interested in the code, and just want to deploy it to kick the types, you can grab the latest container from [docker hub](https://hub.docker.com/r/pcuzner/process-exporter).
 
 
 ## Running the container
-You can run the container like this;
+Once you've built the container locally, you can test it like this (assumes you built it with a *test* tag);  
 ```
 podman run -d --network=host --name proctest -v /proc:/host/proc:ro --privileged --entrypoint=/process-exporter
  localhost/process-exporter:test -debug -filter=kwin_x11
 ```
 Note that we need to run the container in **privileged** mode to read the contents of procfs from a container.
+
+Here's an example looking at ceph osd and mgr processes, using the prebuilt container
+  
+```
+podman run -d --rm --network=host --name proc-exporter -v /proc:/host/proc:ro --privileged --entrypoint=/process-exporter docker.io/pcuzner/process-exporter:latest -debug -filter=ceph-osd,ceph-mgr -with-threads -prefix=ceph
+```
 
 ## Visualisations
 The process-exporter code has been used to gain insights into Ceph OSD performance with Grafana. The screenshot below gives an odea of the kind of views you can create.  
