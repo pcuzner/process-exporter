@@ -23,7 +23,7 @@ buildah run -e GOOS=linux -e GOARCH=amd64 -e CGO_ENABLED=0 -- $build go build .
 container=$(buildah from "laptop:5000/alpine:3.17")
 buildah config --workingdir / $container
 buildah copy --from $build $container /process-exporter/process-exporter /process-exporter
-buildah config --entrypoint "/process-exporter" $container
+buildah config --entrypoint '["/process-exporter"]' $container
 
 buildah config --label maintainer="Paul Cuzner <pcuzner@ibm.com>" $container
 buildah config --label description="Process exporter" $container
