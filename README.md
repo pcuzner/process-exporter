@@ -83,15 +83,13 @@ If you're not interested in the code, and just want to deploy it to kick the typ
 ## Running the container
 Once you've built the container locally, you can test it like this (assumes you built it with a *test* tag);  
 ```
-podman run -d --network=host --name proctest -v /proc:/host/proc:ro --privileged --entrypoint=/process-exporter
- localhost/process-exporter:test -debug -filter=kwin_x11
+podman run -d --network=host --name proctest -v /proc:/host/proc:ro --user 65534 localhost/process-exporter:test -debug -filter=kwin_x11
 ```
-Note that we need to run the container in **privileged** mode to read the contents of procfs from a container.
 
 Here's an example looking at ceph osd and mgr processes, using the prebuilt container
   
 ```
-podman run -d --rm --network=host --name proc-exporter -v /proc:/host/proc:ro --privileged --entrypoint=/process-exporter docker.io/pcuzner/process-exporter:latest -debug -filter=ceph-osd,ceph-mgr -with-threads -prefix=ceph
+podman run -d --rm --network=host --name proc-exporter -v /proc:/host/proc:ro --user 65534 docker.io/pcuzner/process-exporter:latest -debug -filter=ceph-osd,ceph-mgr -with-threads -prefix=ceph
 ```
 
 ## Visualisations
