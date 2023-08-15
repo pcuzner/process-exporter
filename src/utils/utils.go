@@ -33,14 +33,20 @@ func IndexOf[T comparable](list []T, searchItem T) int {
 // ceph processes that have been defined through the cephadm orchestrator.
 func GetDaemonName(commandLine []string) string {
 
-	// Ceph containers running under podman (cephadm)
+	// check for commandline not being populated yet (/proc entry being built or destroyed?)
+	if len(commandLine) == 0 {
+		return ""
+	}
+
+	// Ceph containers running under cephadm control
 	pos := IndexOf(commandLine, "-n")
 	if pos >= 0 {
 		return commandLine[pos+1]
 	}
 
-	// ganesha
-	log.Debug("not a ceph native daemon/client. cmdline is ", commandLine[0])
+	// ganesha et al
+	cmdString := strings.Join(commandLine, " ")
+	log.Debug("daemon is not a native Ceph daemon/client. cmdline is: ", cmdString)
 	if commandLine[0] == "/usr/bin/ganesha.nfsd" {
 		hostname, err := os.Hostname()
 		if err == nil {
