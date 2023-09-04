@@ -61,7 +61,7 @@ func GetDaemonName(commandLine []string) string {
 	switch commandLine[0] {
 	case "/usr/bin/ganesha.nfsd":
 		return "ganesha." + fqdn
-	case "/usr/local/bin/nvmef_tgt":
+	case "/usr/local/bin/nvmf_tgt":
 		return "nvmeof_tgt." + fqdn
 	case "haproxy":
 		return "haproxy" + fqdn
