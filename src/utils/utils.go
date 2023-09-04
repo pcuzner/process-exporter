@@ -47,12 +47,20 @@ func GetDaemonName(commandLine []string) string {
 	// ganesha et al
 	cmdString := strings.Join(commandLine, " ")
 	log.Debug("daemon is not a native Ceph daemon/client. cmdline is: ", cmdString)
+	hostname, err := os.Hostname()
+	var fqdn string = ""
+	if err == nil {
+		hostParts := strings.Split(hostname, ".")
+		fqdn = hostParts[0]
+	}
 	if commandLine[0] == "/usr/bin/ganesha.nfsd" {
-		hostname, err := os.Hostname()
-		if err == nil {
-			fqdn := strings.Split(hostname, ".")
-			return "ganesha." + fqdn[0]
-		}
+		return "ganesha." + fqdn
+	}
+	if commandLine[0] == "/usr/local/nvmef_tgt" {
+		return "nvmeof_tgt." + fqdn
+	}
+	if commandLine[0] == "haproxy" {
+		return "haproxy." + fqdn
 	}
 
 	return ""
