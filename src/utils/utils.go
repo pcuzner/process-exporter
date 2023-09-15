@@ -32,7 +32,7 @@ func IndexOf[T comparable](list []T, searchItem T) int {
 // so it can be used within a metric label. At this point it focuses only on
 // ceph processes that have been defined through the cephadm orchestrator.
 func GetDaemonName(commandLine []string) string {
-	var fqdn string = ""
+	var hostname string = ""
 
 	// check for commandline not being populated yet (/proc entry being built or destroyed?)
 	if len(commandLine) == 0 {
@@ -48,23 +48,25 @@ func GetDaemonName(commandLine []string) string {
 	// ganesha et al
 	cmdString := strings.Join(commandLine, " ")
 	log.Debug("daemon is not a native Ceph daemon/client. cmdline is: ", cmdString)
-	hostname, err := os.Hostname()
+	hostFQDN, err := os.Hostname()
 
 	if err != nil {
-		log.Debug("Unable to retrieve hostname, so unable to determine the format to use for the daemon label")
+		log.Error("Unable to retrieve hostname, so unable to determine the format to use for the daemon label")
 		return ""
 	}
 
-	hostParts := strings.Split(hostname, ".")
-	fqdn = hostParts[0]
+	hostParts := strings.Split(hostFQDN, ".")
+	hostname = hostParts[0]
 
 	switch commandLine[0] {
 	case "/usr/bin/ganesha.nfsd":
-		return "ganesha." + fqdn
+		return "ganesha." + hostname
 	case "/usr/local/bin/nvmf_tgt":
-		return "nvmeof_tgt." + fqdn
+		return "nvmeof_tgt." + hostname
 	case "haproxy":
-		return "haproxy" + fqdn
+		return "haproxy." + hostname
+	case "/usr/bin/tcmu-runner":
+		return "iscsi-gw." + hostname
 	}
 
 	return ""
