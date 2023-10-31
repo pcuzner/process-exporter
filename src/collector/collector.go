@@ -29,6 +29,7 @@ type threadCollector struct {
 	procNumThreads      *prometheus.Desc
 	threadKernelCPUTime *prometheus.Desc
 	threadUserCPUTime   *prometheus.Desc
+	procVSizeBytes      *prometheus.Desc
 }
 
 // NewThreadCollector returns a threadcollector instance
@@ -86,6 +87,11 @@ func NewThreadCollector(config *defaults.Config) *threadCollector {
 			"User CPU usage of thread",
 			[]string{"pid", "tid", "tname", "daemon"}, nil,
 		),
+		procVSizeBytes: prometheus.NewDesc(
+			fmt.Sprint(prefix, "_process_virtual_memory_bytes_total"),
+			"Virtual Memory size of the process (bytes)",
+			[]string{"pid", "pname", "daemon"}, nil,
+		),
 	}
 }
 
@@ -101,6 +107,7 @@ func (tCollector *threadCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- tCollector.procNumThreads
 	ch <- tCollector.threadKernelCPUTime
 	ch <- tCollector.threadUserCPUTime
+	ch <- tCollector.procVSizeBytes
 }
 
 // Collect is called by a GET request, and handles the data gathering and metrics
@@ -167,6 +174,14 @@ func (tCollector *threadCollector) Collect(ch chan<- prometheus.Metric) {
 					tCollector.procRSS,
 					prometheus.GaugeValue,
 					float64(procInfo.RSSbytes),
+					strconv.Itoa(pid), procInfo.Comm, procInfo.Daemon,
+				)
+				ch <- metric
+
+				metric = prometheus.MustNewConstMetric(
+					tCollector.procVSizeBytes,
+					prometheus.GaugeValue,
+					float64(procInfo.VSizeBytes),
 					strconv.Itoa(pid), procInfo.Comm, procInfo.Daemon,
 				)
 				ch <- metric

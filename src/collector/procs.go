@@ -84,6 +84,7 @@ func getProc(proc procfs.Proc, withThreads bool) ([]defaults.ProcInfo, error) {
 		ReadBytes:   ioStats.ReadBytes,
 		WriteBytes:  ioStats.WriteBytes,
 		RSSbytes:    (procStats.RSS * defaults.SystemPageSize),
+		VSizeBytes:  procStats.VSize,
 	}
 	stats = append(stats, info)
 

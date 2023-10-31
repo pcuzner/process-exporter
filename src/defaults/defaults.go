@@ -35,4 +35,5 @@ type ProcInfo struct {
 	ReadBytes   uint64
 	WriteBytes  uint64
 	RSSbytes    int
+	VSizeBytes  uint
 }
