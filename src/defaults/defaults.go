@@ -11,11 +11,11 @@ var DefaultPort int = 9200
 // exposes this value as a number of pages, so this multiplier converts the pages to bytes.
 var SystemPageSize int = 4096
 
-// Config holds the runtime options to governhow the process-exporter will run
+// Config holds the runtime options to govern how the process-exporter will run
 type Config struct {
 	Filter       string
 	NoMatchAbort bool
-	WithThreads  bool
+	WithThreads  string
 	MetricPrefix string
 }
 
