@@ -28,9 +28,11 @@ func init() {
 }
 
 // GetProcs returns a slice of Proc structs (pids) that match a given name
-func GetProcs(filter string) procfs.Procs {
+func GetProcs(filter string, withThreads string) (procfs.Procs, []bool) {
 	targets := strings.Split(filter, ",")
+	threadProcesses := strings.Split(withThreads, ",")
 	var matchingProcs procfs.Procs
+	var fetchThreadData []bool
 
 	procs, err := FS.AllProcs()
 
@@ -42,9 +44,15 @@ func GetProcs(filter string) procfs.Procs {
 		c, _ := proc.Comm()
 		if utils.Contains(targets, c) {
 			matchingProcs = append(matchingProcs, proc)
+			matchForThreads := utils.Contains(threadProcesses, c)
+			if matchForThreads {
+				log.Debug("Will provide thread statistics for ", c)
+			}
+			fetchThreadData = append(fetchThreadData, matchForThreads)
 		}
+
 	}
-	return matchingProcs
+	return matchingProcs, fetchThreadData
 }
 
 // GetProcInfo runs as a goroutine to gather the proc information for a given proc
