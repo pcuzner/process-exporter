@@ -117,7 +117,7 @@ func (tCollector *threadCollector) Collect(ch chan<- prometheus.Metric) {
 	log.Debug("Collect called")
 	start := time.Now()
 
-	matchingProcs, fetchThreads := GetProcs(tCollector.config.Filter, tCollector.config.WithThreads)
+	matchingProcs := GetProcs(tCollector.config.Filter, tCollector.config.WithThreads)
 	elapsed := time.Since(start)
 	log.Debugf("Looking for matching procs took: %s", elapsed)
 
@@ -133,20 +133,16 @@ func (tCollector *threadCollector) Collect(ch chan<- prometheus.Metric) {
 
 	start = time.Now()
 	var wg sync.WaitGroup
-	idx := 0
-	log.Debug(fetchThreads)
 
 	procChannel := make(chan []defaults.ProcInfo, len(matchingProcs))
 	wg.Add(len(matchingProcs))
 
 	log.Debugf("Starting %d goroutines to gather the data", len(matchingProcs))
-	for _, proc := range matchingProcs {
-		fetchThreadData := fetchThreads[idx]
-		if fetchThreadData {
-			log.Debug("requesting thread stats")
+	for _, procData := range matchingProcs {
+		if procData.withThreads {
+			log.Debug("requesting thread stats for ", procData.comm)
 		}
-		GetProcInfo(proc, fetchThreadData, procChannel, &wg)
-		idx++
+		GetProcInfo(procData.procInfo, procData.withThreads, procChannel, &wg)
 	}
 	wg.Wait()
 	close(procChannel)

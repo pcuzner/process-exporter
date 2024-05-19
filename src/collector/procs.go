@@ -16,6 +16,12 @@ import (
 // FS mount point for procfs
 var FS procfs.FS
 
+type ProcMatch struct {
+	procInfo    procfs.Proc
+	withThreads bool
+	comm        string
+}
+
 func init() {
 
 	if _, err := os.Stat("/host/proc"); err == nil {
@@ -28,11 +34,11 @@ func init() {
 }
 
 // GetProcs returns a slice of Proc structs (pids) that match a given name
-func GetProcs(filter string, withThreads string) (procfs.Procs, []bool) {
+func GetProcs(filter string, withThreads string) []*ProcMatch {
+	var procData []*ProcMatch
+
 	targets := strings.Split(filter, ",")
 	threadProcesses := strings.Split(withThreads, ",")
-	var matchingProcs procfs.Procs
-	var fetchThreadData []bool
 
 	procs, err := FS.AllProcs()
 
@@ -43,16 +49,12 @@ func GetProcs(filter string, withThreads string) (procfs.Procs, []bool) {
 	for _, proc := range procs {
 		c, _ := proc.Comm()
 		if utils.Contains(targets, c) {
-			matchingProcs = append(matchingProcs, proc)
-			matchForThreads := utils.Contains(threadProcesses, c)
-			if matchForThreads {
-				log.Debug("Will provide thread statistics for ", c)
-			}
-			fetchThreadData = append(fetchThreadData, matchForThreads)
+			withThreads := utils.Contains(threadProcesses, c)
+			procData = append(procData, &ProcMatch{procInfo: proc, withThreads: withThreads, comm: c})
 		}
 
 	}
-	return matchingProcs, fetchThreadData
+	return procData
 }
 
 // GetProcInfo runs as a goroutine to gather the proc information for a given proc
