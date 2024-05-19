@@ -16,10 +16,10 @@ Usage of ./process-exporter:
   -prefix string
         prefix to use for the metric names returned to Prometheus (default "proc")
   -with-threads
-        include thread cpu stats for processes that match the filter 
+        process names to include thread level statistics for (can be a comma separated list) 
 ```
 
-Although the ```-with-threads option``` is useful for diagnostics, if you're monitoring many processes that use high numbers of threads, you should consider the cardinality impact to the Prometheus Server before enabling. If your unsure how many threads your processes are using, you can use the  ```*_process_thread_total``` metric to help determine the impact of enabling thread collection.
+Use the ```-with-threads``` carefully. If you're monitoring many processes that use high numbers of threads, you may cause a cardinality issue for the Prometheus Server. If your unsure how many threads your processes are using, you can use the  ```*_process_thread_total``` metric to help determine the impact of enabling thread for a specific process or group of processes.
 
 ## Metrics Example
 The metrics below show the format returned when running the exporter within a Ceph cluster

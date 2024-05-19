@@ -28,11 +28,13 @@ func init() {
 
 func main() {
 	var filter *string
+	var withThreads *string
 	port := flag.Int("port", defaults.DefaultPort, "port for the exporter to bind to")
 	filter = flag.String("filter", "", "command of the process to search for (can be a comma separated list)")
+	withThreads = flag.String("with-threads", "", "process names that should include per thread statistics (can be a comma separated list)")
 	debug := flag.Bool("debug", true, "run in debug mode")
 	noMatchAbort := flag.Bool("nomatch-abort", false, "shutdown if the filter doesn't match any active process")
-	withThreads := flag.Bool("with-threads", false, "include thread cpu stats for processes that match the filter")
+
 	metricPrefix := flag.String("prefix", "proc", "prefix to use for the metric names returned to Prometheus")
 
 	flag.Parse()
