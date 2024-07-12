@@ -30,6 +30,7 @@ type threadCollector struct {
 	threadKernelCPUTime *prometheus.Desc
 	threadUserCPUTime   *prometheus.Desc
 	procVSizeBytes      *prometheus.Desc
+	procHugePagesBytes  *prometheus.Desc
 }
 
 // NewThreadCollector returns a threadcollector instance
@@ -92,6 +93,11 @@ func NewThreadCollector(config *defaults.Config) *threadCollector {
 			"Virtual Memory size of the process (bytes)",
 			[]string{"pid", "pname", "daemon"}, nil,
 		),
+		procHugePagesBytes: prometheus.NewDesc(
+			fmt.Sprint(prefix, "_process_hugepages_bytes_total"),
+			"HugePages consumed by the process (bytes)",
+			[]string{"pid", "pname", "daemon"}, nil,
+		),
 	}
 }
 
@@ -108,6 +114,7 @@ func (tCollector *threadCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- tCollector.threadKernelCPUTime
 	ch <- tCollector.threadUserCPUTime
 	ch <- tCollector.procVSizeBytes
+	ch <- tCollector.procHugePagesBytes
 }
 
 // Collect is called by a GET request, and handles the data gathering and metrics
@@ -227,6 +234,13 @@ func (tCollector *threadCollector) Collect(ch chan<- prometheus.Metric) {
 					tCollector.procNumThreads,
 					prometheus.GaugeValue,
 					float64(procInfo.NumThreads),
+					strconv.Itoa(pid), procInfo.Comm, procInfo.Daemon,
+				)
+				ch <- metric
+				metric = prometheus.MustNewConstMetric(
+					tCollector.procHugePagesBytes,
+					prometheus.GaugeValue,
+					float64(procInfo.HugePagesBytes),
 					strconv.Itoa(pid), procInfo.Comm, procInfo.Daemon,
 				)
 				ch <- metric
