@@ -15,6 +15,7 @@ import (
 
 // FS mount point for procfs
 var FS procfs.FS
+var procPath string
 
 type ProcMatch struct {
 	procInfo    procfs.Proc
@@ -26,10 +27,11 @@ func init() {
 
 	if _, err := os.Stat("/host/proc"); err == nil {
 		// running as a container with proc mounted at /host
-		FS, _ = procfs.NewFS("/host/proc")
+		procPath = "/host/proc"
 	} else {
-		FS, _ = procfs.NewFS("/proc")
+		procPath = "/proc"
 	}
+	FS, _ = procfs.NewFS(procPath)
 	fmt.Println("Using proc filesystem at ", FS)
 }
 
@@ -79,22 +81,24 @@ func getProc(proc procfs.Proc, withThreads bool) ([]defaults.ProcInfo, error) {
 	daemonName := utils.GetDaemonName(cmdLine)
 	procStats, _ := proc.Stat()
 	ioStats, _ := proc.IO()
+	procStatus, _ := proc.NewStatus()
 
 	info := defaults.ProcInfo{
-		Pid:         pid,
-		Tid:         0,
-		Daemon:      daemonName,
-		Comm:        comm,
-		CommandLine: cmdLine,
-		NumThreads:  procStats.NumThreads,
-		STime:       procStats.STime,
-		UTime:       procStats.UTime,
-		SyscR:       ioStats.SyscR,
-		SyscW:       ioStats.SyscW,
-		ReadBytes:   ioStats.ReadBytes,
-		WriteBytes:  ioStats.WriteBytes,
-		RSSbytes:    (procStats.RSS * defaults.SystemPageSize),
-		VSizeBytes:  procStats.VSize,
+		Pid:            pid,
+		Tid:            0,
+		Daemon:         daemonName,
+		Comm:           comm,
+		CommandLine:    cmdLine,
+		NumThreads:     procStats.NumThreads,
+		STime:          procStats.STime,
+		UTime:          procStats.UTime,
+		SyscR:          ioStats.SyscR,
+		SyscW:          ioStats.SyscW,
+		ReadBytes:      ioStats.ReadBytes,
+		WriteBytes:     ioStats.WriteBytes,
+		RSSbytes:       (procStats.RSS * defaults.SystemPageSize),
+		VSizeBytes:     procStats.VSize,
+		HugePagesBytes: procStatus.HugetlbPages,
 	}
 	stats = append(stats, info)
 
