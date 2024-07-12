@@ -22,18 +22,19 @@ type Config struct {
 // ProcInfo struct describes all the attributes of a proc or thread that will be used
 // to assemble the prometheus metrics
 type ProcInfo struct {
-	Pid         int
-	Tid         int
-	Daemon      string
-	Comm        string
-	CommandLine []string
-	NumThreads  int
-	STime       uint
-	UTime       uint
-	SyscR       uint64
-	SyscW       uint64
-	ReadBytes   uint64
-	WriteBytes  uint64
-	RSSbytes    int
-	VSizeBytes  uint
+	Pid            int
+	Tid            int
+	Daemon         string
+	Comm           string
+	CommandLine    []string
+	NumThreads     int
+	STime          uint
+	UTime          uint
+	SyscR          uint64
+	SyscW          uint64
+	ReadBytes      uint64
+	WriteBytes     uint64
+	RSSbytes       int
+	VSizeBytes     uint
+	HugePagesBytes uint64
 }
